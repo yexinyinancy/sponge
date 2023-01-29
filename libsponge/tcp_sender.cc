@@ -68,7 +68,6 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
     if (an > _next_seqno) {
         return;
     }
-    cerr<<_next_seqno<<"yxyxyxyxyxyxyxy\n";
     _win_size = window_size;
     if (an <= _win_start) {
         return;
