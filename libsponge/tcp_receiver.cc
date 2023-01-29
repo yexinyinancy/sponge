@@ -32,9 +32,6 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         _isn = header.seqno;
         seqno = seqno + 1;
     }
-    if (header.fin) {
-        _FIN_flag = true;
-    }
     uint64_t checkpoint = _reassembler.stream_out().bytes_written();
     uint64_t seqno64 = unwrap(seqno, _isn, checkpoint);
     if (seqno64 == 0) {
