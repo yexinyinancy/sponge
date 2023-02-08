@@ -57,6 +57,10 @@ void TCPSender::fill_window() {
         _segments_out.push(segment);
         _segments_outstanding.push(segment);
         _next_seqno += segment.length_in_sequence_space();
+        if (!_timer_running) { 
+            _timer_running = true;
+            _timer = 0;
+        }
     }
 }
 
@@ -82,22 +86,33 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
             break;
         }
     }
+    fill_window();
     _cur_retransmission_timeout = _initial_retransmission_timeout;
     _consecutive_retransmissions = 0;
-    _cur_time = 0;
+    // _cur_time = 0;
+    if (!_segments_outstanding.empty()) {
+        _timer_running = true;
+        _timer = 0;
+    }
 }
 
 //! \param[in] ms_since_last_tick the number of milliseconds since the last call to this method
 void TCPSender::tick(const size_t ms_since_last_tick) {
-    _cur_time += ms_since_last_tick;
-    if (_cur_time >= _cur_retransmission_timeout && !_segments_outstanding.empty()) {
+    // _cur_time += ms_since_last_tick;
+    _timer += ms_since_last_tick;
+    if (_timer >= _cur_retransmission_timeout && !_segments_outstanding.empty()) {
         _segments_out.push(_segments_outstanding.front());
         _consecutive_retransmissions++;
         // testcase13: ack_received has never been called (window_size is 0), _cur_retransmission_timeout shoule be doubled
         if (_segments_outstanding.front().header().syn || _win_size != 0) {
             _cur_retransmission_timeout *= 2;
         }
-        _cur_time = 0;
+        // _cur_time = 0;
+        _timer_running = true;
+        _timer = 0;
+    }
+    if (_segments_outstanding.empty()) {
+        _timer_running = false;
     }
 }
 
