@@ -50,6 +50,7 @@ int main() {
             // ack
             const uint16_t swin = MIN_SWIN + (rd() % (MAX_SWIN - MIN_SWIN));
             test_1.send_ack(seq_base + 1, ack_base + 1, swin);  // adjust send window here
+            cerr<<"(seq_base + 1):"<<seq_base + 1<<" (ack_base + 1):"<<ack_base + 1<<endl;
 
             test_1.execute(ExpectNoSegment{}, "test 1 failed: ACK after acceptable ACK");
             test_1.execute(ExpectState{State::ESTABLISHED});
@@ -59,6 +60,8 @@ int main() {
             string d(swin_mul * swin, 0);
             generate(d.begin(), d.end(), [&] { return rd(); });
             test_1.execute(Write{d}.with_bytes_written(swin_mul * swin));
+            cerr<<"with_bytes_written:"<<swin_mul * swin<<endl;
+            cerr<<"win_size:"<<cfg.recv_capacity<<endl;
             test_1.execute(Tick(1));
 
             string d_out(swin_mul * swin, 0);
@@ -84,6 +87,7 @@ int main() {
                 // NOTE that we don't override send window here because cfg should have been updated
                 test_1.send_ack(seq_base + 1, ack_base + 1 + bytes_total, swin);
                 test_1.execute(Tick(1));
+                cerr<<"bytes_total:"<<bytes_total<<endl;
             }
             test_1.execute(ExpectBytesInFlight{0}, "test 1 failed: after acking, bytes still in flight?");
             test_err_if(!equal(d.cbegin(), d.cend(), d_out.cbegin()), "test 1 failed: data mismatch");
