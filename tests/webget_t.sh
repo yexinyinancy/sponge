@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WEB_HASH=`./apps/webget cs144.keithw.org /nph-hasher/xyzzy | tee /dev/stderr | tail -n 1`
+WEB_HASH=`/home/cs144/sponge/build/apps/webget cs144.keithw.org /nph-hasher/xyzzy | tee /dev/stderr | tail -n 1`
 CORRECT_HASH="7SmXqWkrLKzVBCEalbSPqBcvs11Pw263K7x4Wv3JckI"
 
 if [ "${WEB_HASH}" != "${CORRECT_HASH}" ]; then

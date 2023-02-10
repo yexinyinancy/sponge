@@ -161,7 +161,6 @@ int main() {
             }
 
             const size_t window_size = uniform_int_distribution<uint16_t>{50000, 63000}(rd);
-
             TCPSenderTestHarness test{"fill_window() correctly fills a big window", cfg};
             test.execute(WriteBytes(string(bigstring)));
             test.execute(ExpectSegment{}.with_no_flags().with_syn(true).with_payload_size(0).with_seqno(isn));
@@ -176,6 +175,7 @@ int main() {
                                  .with_payload_size(expected_size)
                                  .with_data(bigstring.substr(i, expected_size))
                                  .with_seqno(isn + 1 + i));
+                break;
             }
         }
 
